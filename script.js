@@ -281,14 +281,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // 10. Contact Form Logic (AJAX via FormSubmit.co)
+
+    // 10. Toast Notification System
+    function showToast(title, message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        const icon = type === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
+        
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="fas ${icon}"></i></div>
+            <div class="toast-content">
+                <h4>${title}</h4>
+                <p>${message}</p>
+            </div>
+            <div class="toast-progress"></div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger reflow for animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Auto-remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+
+    // 11. Contact Form Logic (AJAX via FormSubmit.co)
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<strong>SENDING...</strong>';
+            
+            // Loading state
+            btn.innerHTML = '<strong>SENDING MISSION DATA...</strong>';
             btn.disabled = true;
 
             const formData = new FormData(contactForm);
@@ -300,23 +332,40 @@ document.addEventListener('DOMContentLoaded', () => {
             })
                 .then(response => {
                     if (response.ok) {
-                        btn.innerHTML = '<strong>✓ SENT!</strong>';
-                        btn.style.borderColor = '#34d399';
+                        // Success Feedback
+                        btn.innerHTML = '<strong>SUCCESSFULLY TRANSMITTED</strong>';
+                        btn.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.4)';
+                        
+                        showToast('Message Sent!', 'Thank you! I will get back to you soon.', 'success');
+                        
+                        // Launch Confetti!
+                        confetti({
+                            particleCount: 150,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#8b5cf6', '#3b82f6', '#22d3ee']
+                        });
+                        
                         contactForm.reset();
+                        
                         setTimeout(() => {
                             btn.innerHTML = originalHTML;
-                            btn.style.borderColor = '';
+                            btn.style.boxShadow = '';
                             btn.disabled = false;
-                        }, 3000);
+                        }, 5000);
                     } else {
                         throw new Error('Form submission failed');
                     }
                 })
-                .catch(() => {
-                    // Fallback: submit natively
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
-                    contactForm.submit();
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Transmission Error', 'Please try again or contact me directly via email.', 'error');
+                    btn.innerHTML = '<strong>TRANSMISSION FAILED</strong>';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                    }, 3000);
                 });
         });
     }
