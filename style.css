@@ -3075,27 +3075,27 @@ footer {
 
   .coin-container {
     position: fixed !important;
-    top: 15px !important;
+    top: 25px !important;
     left: 15px !important;
     right: auto !important;
     bottom: auto !important;
-    width: 45px !important;
-    height: 45px !important;
+    width: 65px !important;
+    height: 65px !important;
     z-index: 1000001 !important;
     margin: 0 !important;
     transform: none !important;
   }
 
   .coin {
-    width: 40px !important;
-    height: 40px !important;
+    width: 60px !important;
+    height: 60px !important;
   }
 
   .dice-view {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) scale(0.65) !important;
+    transform: translate(-50%, -50%) scale(0.85) !important;
     margin: 0 !important;
   }
 
