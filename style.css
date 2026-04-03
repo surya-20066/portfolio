@@ -2929,6 +2929,15 @@ footer {
     padding-right: 1.5rem;
   }
 
+  .about-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  .about-avatar {
+    display: none !important;
+  }
+
   .timeline-item:nth-child(even),
   .timeline-item:nth-child(odd) {
     align-self: flex-start;
