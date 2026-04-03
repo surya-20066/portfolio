@@ -3110,16 +3110,17 @@ footer {
 
   .contact-grid {
     grid-template-columns: 1fr !important;
-    gap: 2rem !important;
+    gap: 2.5rem !important;
     justify-items: center !important;
   }
 
   .contact-card,
   .contact-form {
-    padding: 1.5rem !important;
+    padding: 2.5rem 1.5rem !important;
     margin: 0 auto !important;
     width: 100% !important;
-    max-width: 450px !important;
+    max-width: 380px !important;
+    text-align: center !important;
   }
 
   .contact-info {
