@@ -370,5 +370,197 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 12. About Stack Logic - Drag & Drop Cards
+    const stackWrapper = document.querySelector('.stack-wrapper');
+    const files = [
+        // 1. Internships
+        { name: 'Web Dev Intern', subtitle: 'Vault of Codes', type: 'image', src: 'vaultofcodes.png' },
+        { name: 'Java Intern', subtitle: 'Codec Technologies', type: 'image', src: 'codec-java.png' },
+        { name: 'database Intern', subtitle: 'Elevate Labs', type: 'image', src: 'Elevate labs.png' },
+
+        // 2. Workshops / Hackathons / Achievements 
+        { name: 'Hackathon Finalist', subtitle: 'ANITS', type: 'image', src: 'anits -hackathon.png' },
+        { name: 'openAI Finalist', subtitle: 'NxtWave', type: 'image', src: 'nextwave.png' },
+        { name: 'Innovation Cert', subtitle: 'NSRIT', type: 'image', src: 'NSRIT.png' },
+        { name: 'Entrepreneurship', subtitle: 'IIM Vishakhapatnam', type: 'image', src: 'IIM.png' },
+        { name: 'GATE Scorecard', subtitle: 'CS IT', type: 'image', src: 'cs_scorecard.png' },
+        { name: 'MSME Cert', subtitle: 'Govt of India', type: 'image', src: 'MSME.png' },
+        
+        // 3. Courses
+        { name: 'Algorithms', subtitle: 'NPTEL', type: 'image', src: 'NPTEL.png' },
+        { name: 'SQL for Data', subtitle: 'LinkedIn Learning', type: 'image', src: 'li-sql.png' },
+        { name: 'SQL 101', subtitle: 'IBM Cognitive Class', type: 'image', src: 'ibm-sql.png' },
+        { name: 'Mastering CSS', subtitle: 'Infosys Springboard', type: 'image', src: 'css.png' },
+        { name: 'Intro to HTML', subtitle: 'Infosys Springboard', type: 'image', src: 'html.png' },
+        { name: 'JS for Beginners', subtitle: 'Simplilearn SkillUp', type: 'image', src: 'js.png' },
+        { name: 'Python Essentials 1', subtitle: 'Cisco Academy', type: 'image', src: 'py1.png' },
+        { name: 'Python Essentials 2', subtitle: 'Cisco Academy', type: 'image', src: 'py2.png' }
+    ];
+
+    let isStackDragging = false;
+    let stackStartX, stackStartY, stackCurrentX, stackCurrentY;
+    let activeStackCard = null;
+
+    function createCard(file, index) {
+        const card = document.createElement('div');
+        card.className = 'stack-card';
+        
+        let content = '';
+        if (file.type === 'image') {
+            const fallbackImg = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            content = `<img src="${file.src}" alt="${file.name}" onerror="this.src='${fallbackImg}';">`;
+        } else {
+            content = `
+                <div class="card-icon-placeholder" style="display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-file-alt" style="font-size: 4rem; color: #7c3aed;"></i>
+                </div>
+            `;
+        }
+
+        card.innerHTML = `
+            ${content}
+            <div class="stack-card-content">
+                <p class="card-platform">${file.subtitle}</p>
+                <div class="card-line-separator"></div>
+                <h4 class="card-cert-name">${file.name}</h4>
+            </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+            if (isStackDragging || Math.abs(stackCurrentX) > 5 || Math.abs(stackCurrentY) > 5) return;
+            
+            const viewer = document.getElementById('image-viewer');
+            const viewerImg = document.getElementById('viewer-img');
+            const viewerCaption = document.getElementById('viewer-caption');
+            
+            if (viewer && viewerImg && viewerCaption) {
+                viewer.style.display = "flex";
+                viewer.style.alignItems = "center";
+                viewer.style.justifyContent = "center";
+                viewer.style.flexDirection = "column";
+                viewerImg.src = file.src;
+                viewerCaption.innerHTML = file.name;
+            }
+        });
+
+        return card;
+    }
+
+    function initStack() {
+        if (!stackWrapper) return;
+        files.forEach((file, i) => {
+            const card = createCard(file, i);
+            stackWrapper.appendChild(card);
+            setupStackDrag(card);
+        });
+        updateStackStyles();
+    }
+
+    function setupStackDrag(card) {
+        card.addEventListener('mousedown', stackDragStart);
+        card.addEventListener('touchstart', stackDragStart, { passive: false });
+    }
+
+    function stackDragStart(e) {
+        const currentTopCard = stackWrapper.children[0];
+        if (currentTopCard !== e.currentTarget) return;
+        
+        isStackDragging = true;
+        activeStackCard = e.currentTarget;
+        stackCurrentX = 0;
+        stackCurrentY = 0;
+        
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        
+        stackStartX = clientX;
+        stackStartY = clientY;
+        
+        activeStackCard.style.transition = 'none';
+        
+        document.addEventListener('mousemove', stackDragMove);
+        document.addEventListener('touchmove', stackDragMove, { passive: false });
+        document.addEventListener('mouseup', stackDragEnd);
+        document.addEventListener('touchend', stackDragEnd);
+    }
+
+    function stackDragMove(e) {
+        if (!isStackDragging || !activeStackCard) return;
+        
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        
+        stackCurrentX = clientX - stackStartX;
+        stackCurrentY = clientY - stackStartY;
+        
+        const rotate = stackCurrentX / 15;
+        activeStackCard.style.transform = `translate(${stackCurrentX}px, ${stackCurrentY}px) rotate(${rotate}deg)`;
+        
+        if (e.type === 'touchmove') e.preventDefault();
+    }
+
+    function stackDragEnd() {
+        if (!isStackDragging || !activeStackCard) return;
+        isStackDragging = false;
+        
+        activeStackCard.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
+        
+        const threshold = 120;
+        if (Math.abs(stackCurrentX) > threshold || Math.abs(stackCurrentY) > threshold) {
+            const velocityX = stackCurrentX * 1.5;
+            const velocityY = stackCurrentY * 1.5;
+            activeStackCard.style.transform = `translate(${velocityX}px, ${velocityY}px) rotate(${stackCurrentX / 5}deg)`;
+            activeStackCard.style.opacity = '0';
+            
+            const cardToMove = activeStackCard;
+            setTimeout(() => {
+                if (stackWrapper.contains(cardToMove)) {
+                    stackWrapper.removeChild(cardToMove);
+                    stackWrapper.appendChild(cardToMove);
+                    cardToMove.style.opacity = '1';
+                    updateStackStyles();
+                }
+            }, 300);
+        } else {
+            updateStackStyles();
+        }
+        
+        document.removeEventListener('mousemove', stackDragMove);
+        document.removeEventListener('touchmove', stackDragMove);
+        document.removeEventListener('mouseup', stackDragEnd);
+        document.removeEventListener('touchend', stackDragEnd);
+        
+        activeStackCard = null;
+    }
+
+    function updateStackStyles() {
+        const cards = Array.from(stackWrapper.children);
+        cards.forEach((card, i) => {
+            card.style.zIndex = cards.length - i;
+            if (i === 0) {
+                card.style.transform = 'translate(0, 0) rotate(0deg)';
+                card.style.opacity = '1';
+                card.style.background = '#ffffff';
+                card.querySelectorAll('h4, p').forEach(el => el.style.visibility = 'visible');
+            } else if (i === 1) {
+                card.style.transform = 'translate(-25px, -15px) rotate(-3deg)';
+                card.style.opacity = '1';
+                card.style.background = '#e9d5ff';
+                card.querySelectorAll('h4, p').forEach(el => el.style.visibility = 'hidden');
+            } else if (i === 2) {
+                card.style.transform = 'translate(-50px, -30px) rotate(-6deg)';
+                card.style.opacity = '1';
+                card.style.background = '#d8b4fe';
+                card.querySelectorAll('h4, p').forEach(el => el.style.visibility = 'hidden');
+            } else {
+                card.style.transform = 'translate(-75px, -45px) rotate(-9deg)';
+                card.style.opacity = '0';
+                card.querySelectorAll('h4, p').forEach(el => el.style.visibility = 'hidden');
+            }
+        });
+    }
+
+    initStack();
+
 });
 
