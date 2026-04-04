@@ -1,22 +1,6 @@
-/*
-  Script for Surya Sathwik's Portfolio
-  Author: Antigravity
-*/
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. Loader Removal
-    const loader = document.getElementById('loader');
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500);
-        }, 1500);
-    });
 
-    // 2. Typing Effect
     const typingText = document.getElementById('typing-text');
     const professions = [
         "Applied AI Developer",
@@ -43,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isDeleting && charIndex === current.length) {
             isDeleting = true;
-            typeSpeed = 2000; // Pause at end
+            typeSpeed = 2000;
         } else if (isDeleting && charIndex === 0) {
             isDeleting = false;
             profIndex = (profIndex + 1) % professions.length;
@@ -54,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     type();
 
-    // 3. Neural Network Background Animation
+
     const canvas = document.getElementById('neural-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -93,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initParticles() {
         particles = [];
-        const count = Math.floor((canvas.width * canvas.height) / 15000);
+        const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 25000));
         for (let i = 0; i < count; i++) {
             particles.push(new Particle());
         }
@@ -125,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     animate();
 
-    // 4. Reveal on Scroll
+
     const observerOptions = {
         threshold: 0.1
     };
@@ -135,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
 
-                // If it's a section with stats, start the counter
+
                 if (entry.target.id === 'about') {
                     startCounters();
                 }
@@ -145,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-    // 5. Stats Counter Logic
+
     let countersStarted = false;
     function startCounters() {
         if (countersStarted) return;
@@ -154,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const stats = document.querySelectorAll('.stat-number');
         stats.forEach(stat => {
             const target = +stat.getAttribute('data-target');
-            const duration = 2000; // 2 seconds
-            const increment = target / (duration / 16); // 60fps approx
+            const duration = 2000;
+            const increment = target / (duration / 16);
 
             let current = 0;
             const updateCount = () => {
@@ -172,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Navigation Link Highlighting
+
     const navLinks = document.querySelectorAll('.nav-links a');
     const sections = document.querySelectorAll('section');
 
@@ -195,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // 9. Anti-Gravity Card Logic
+
     const agCard = document.getElementById('ag-card');
     if (agCard) {
         let isAgFlipped = false;
@@ -215,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (circle) circle.style.opacity = '0';
             if (label) label.style.opacity = '0';
 
-            // Create burst particles
+
             createBurst(agCard);
         }
 
@@ -282,14 +266,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // 10. Toast Notification System
+
     function showToast(title, message, type = 'success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
-        
+
         const icon = type === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
-        
+
         toast.innerHTML = `
             <div class="toast-icon"><i class="fas ${icon}"></i></div>
             <div class="toast-content">
@@ -298,95 +282,68 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="toast-progress"></div>
         `;
-        
+
         container.appendChild(toast);
-        
-        // Trigger reflow for animation
+
+
         setTimeout(() => toast.classList.add('show'), 10);
-        
-        // Auto-remove
+
+
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 5000);
     }
 
-    // 11. Contact Form Logic (AJAX via FormSubmit.co)
+
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const originalHTML = btn.innerHTML;
-            
-            // Loading state
-            btn.innerHTML = '<strong>SENDING MISSION DATA...</strong>';
-            btn.disabled = true;
 
-            const formData = new FormData(contactForm);
+            const name = contactForm.querySelector('input[name="name"]').value;
+            const email = contactForm.querySelector('input[name="email"]').value;
+            const message = contactForm.querySelector('textarea[name="message"]').value;
 
-            fetch(contactForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'Accept': 'application/json' }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Success Feedback
-                        btn.innerHTML = '<strong>SUCCESSFULLY TRANSMITTED</strong>';
-                        btn.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.4)';
-                        
-                        showToast('Message Sent!', 'Thank you! I will get back to you soon.', 'success');
-                        
-                        // Launch Confetti!
-                        confetti({
-                            particleCount: 150,
-                            spread: 70,
-                            origin: { y: 0.6 },
-                            colors: ['#8b5cf6', '#3b82f6', '#22d3ee']
-                        });
-                        
-                        contactForm.reset();
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = originalHTML;
-                            btn.style.boxShadow = '';
-                            btn.disabled = false;
-                        }, 5000);
-                    } else {
-                        throw new Error('Form submission failed');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Transmission Error', 'Please try again or contact me directly via email.', 'error');
-                    btn.innerHTML = '<strong>TRANSMISSION FAILED</strong>';
-                    
-                    setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.disabled = false;
-                    }, 3000);
-                });
+            const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
+            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+
+            window.location.href = `mailto:suryasathwikm@gmail.com?subject=${subject}&body=${body}`;
+
+            btn.innerHTML = '<strong>OPENING MAIL CLIENT...</strong>';
+            btn.style.boxShadow = '0 0 20px rgba(52, 211, 153, 0.4)';
+
+            showToast('Mail Client Opened!', 'Please send the email from your application.', 'success');
+
+            contactForm.reset();
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.boxShadow = '';
+                btn.disabled = false;
+            }, 5000);
         });
     }
 
-    // 12. About Stack Logic - Drag & Drop Cards
+
     const stackWrapper = document.querySelector('.stack-wrapper');
     const files = [
-        // 1. Internships
+
         { name: 'Web Dev Intern', subtitle: 'Vault of Codes', type: 'image', src: 'vaultofcodes.png' },
         { name: 'Java Intern', subtitle: 'Codec Technologies', type: 'image', src: 'codec-java.png' },
         { name: 'database Intern', subtitle: 'Elevate Labs', type: 'image', src: 'Elevate labs.png' },
 
-        // 2. Workshops / Hackathons / Achievements 
+
         { name: 'Hackathon Finalist', subtitle: 'ANITS', type: 'image', src: 'anits -hackathon.png' },
         { name: 'openAI Finalist', subtitle: 'NxtWave', type: 'image', src: 'nextwave.png' },
         { name: 'Innovation Cert', subtitle: 'NSRIT', type: 'image', src: 'NSRIT.png' },
         { name: 'Entrepreneurship', subtitle: 'IIM Vishakhapatnam', type: 'image', src: 'IIM.png' },
         { name: 'GATE Scorecard', subtitle: 'CS IT', type: 'image', src: 'cs_scorecard.png' },
         { name: 'MSME Cert', subtitle: 'Govt of India', type: 'image', src: 'MSME.png' },
-        
-        // 3. Courses
+
+
         { name: 'Algorithms', subtitle: 'NPTEL', type: 'image', src: 'NPTEL.png' },
         { name: 'SQL for Data', subtitle: 'LinkedIn Learning', type: 'image', src: 'li-sql.png' },
         { name: 'SQL 101', subtitle: 'IBM Cognitive Class', type: 'image', src: 'ibm-sql.png' },
@@ -404,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createCard(file, index) {
         const card = document.createElement('div');
         card.className = 'stack-card';
-        
+
         let content = '';
         if (file.type === 'image') {
             const fallbackImg = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
@@ -428,11 +385,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.addEventListener('click', (e) => {
             if (isStackDragging || Math.abs(stackCurrentX) > 5 || Math.abs(stackCurrentY) > 5) return;
-            
+
             const viewer = document.getElementById('image-viewer');
             const viewerImg = document.getElementById('viewer-img');
             const viewerCaption = document.getElementById('viewer-caption');
-            
+
             if (viewer && viewerImg && viewerCaption) {
                 viewer.style.display = "flex";
                 viewer.style.alignItems = "center";
@@ -464,20 +421,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function stackDragStart(e) {
         const currentTopCard = stackWrapper.children[0];
         if (currentTopCard !== e.currentTarget) return;
-        
+
         isStackDragging = true;
         activeStackCard = e.currentTarget;
         stackCurrentX = 0;
         stackCurrentY = 0;
-        
+
         const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-        
+
         stackStartX = clientX;
         stackStartY = clientY;
-        
+
         activeStackCard.style.transition = 'none';
-        
+
         document.addEventListener('mousemove', stackDragMove);
         document.addEventListener('touchmove', stackDragMove, { passive: false });
         document.addEventListener('mouseup', stackDragEnd);
@@ -486,32 +443,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stackDragMove(e) {
         if (!isStackDragging || !activeStackCard) return;
-        
+
         const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-        
+
         stackCurrentX = clientX - stackStartX;
         stackCurrentY = clientY - stackStartY;
-        
+
         const rotate = stackCurrentX / 15;
         activeStackCard.style.transform = `translate(${stackCurrentX}px, ${stackCurrentY}px) rotate(${rotate}deg)`;
-        
+
         if (e.type === 'touchmove') e.preventDefault();
     }
 
     function stackDragEnd() {
         if (!isStackDragging || !activeStackCard) return;
         isStackDragging = false;
-        
+
         activeStackCard.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
-        
+
         const threshold = 120;
         if (Math.abs(stackCurrentX) > threshold || Math.abs(stackCurrentY) > threshold) {
             const velocityX = stackCurrentX * 1.5;
             const velocityY = stackCurrentY * 1.5;
             activeStackCard.style.transform = `translate(${velocityX}px, ${velocityY}px) rotate(${stackCurrentX / 5}deg)`;
             activeStackCard.style.opacity = '0';
-            
+
             const cardToMove = activeStackCard;
             setTimeout(() => {
                 if (stackWrapper.contains(cardToMove)) {
@@ -524,12 +481,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             updateStackStyles();
         }
-        
+
         document.removeEventListener('mousemove', stackDragMove);
         document.removeEventListener('touchmove', stackDragMove);
         document.removeEventListener('mouseup', stackDragEnd);
         document.removeEventListener('touchend', stackDragEnd);
-        
+
         activeStackCard = null;
     }
 
