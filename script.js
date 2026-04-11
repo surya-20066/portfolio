@@ -138,18 +138,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const stats = document.querySelectorAll('.stat-number');
         stats.forEach(stat => {
             const target = +stat.getAttribute('data-target');
-            const duration = 2000;
+            const duration = 600;
             const increment = target / (duration / 16);
+            const outputElement = stat.querySelector('.rank-num') || stat;
 
             let current = 0;
             const updateCount = () => {
                 current += increment;
                 if (current < target) {
-                    stat.textContent = Math.floor(current);
-                    if (target === 8.8) stat.textContent = current.toFixed(1);
+                    let displayValue = Math.floor(current);
+                    if (target % 1 !== 0) displayValue = current.toFixed(1);
+                    outputElement.textContent = displayValue;
                     requestAnimationFrame(updateCount);
                 } else {
-                    stat.textContent = target;
+                    outputElement.textContent = target % 1 !== 0 ? target.toFixed(1) : target;
                 }
             };
             updateCount();
