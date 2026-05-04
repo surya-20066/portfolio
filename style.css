@@ -210,7 +210,7 @@ ul {
   transition: 0.5s;
   animation: gradient_301 5s ease infinite;
   border: double 1px transparent;
-  background-image: linear-gradient(#050812, #050812), linear-gradient(137deg, #ffdb3b 10%, #FE53BB 45%, #8F51EA 67%, #0044ff 87%);
+  background-image: linear-gradient(#050812, #050812), linear-gradient(137deg, #f0f9ff 10%, #bae6fd 45%, #7dd3fc 67%, #0ea5e9 87%);
   background-origin: border-box;
   background-clip: content-box, border-box;
   cursor: pointer;
@@ -261,7 +261,7 @@ ul {
 }
 
 .circle:nth-of-type(2) {
-  background: rgba(91, 33, 182, 0.4);
+  background: rgba(125, 211, 252, 0.4);
 }
 
 .btn-star:hover #container-stars {
