@@ -1,3 +1,7 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
 
@@ -520,6 +524,93 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initStack();
+
+    // --- Three.js 3D Model Integration ---
+    const modelContainer = document.getElementById('model-container');
+    if (modelContainer) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, modelContainer.clientWidth / modelContainer.clientHeight, 0.1, 1000);
+        camera.position.set(0, 1.2, 3);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(modelContainer.clientWidth, modelContainer.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        modelContainer.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.autoRotate = false;
+
+        const loader = new GLTFLoader();
+        let mixer;
+        let model;
+
+        loader.load('cool_man.glb', (gltf) => {
+            model = gltf.scene;
+            scene.add(model);
+
+            // Center model and fit to camera
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            model.position.x = -center.x;
+            model.position.y = -center.y - (size.y * 0.15); // Adjust slightly lower
+            model.position.z = -center.z;
+
+            // Automatically adjust camera distance to fit the model
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+            camera.position.z = cameraZ * 1.5;
+            camera.position.y = 0;
+            camera.lookAt(0, 0, 0);
+
+            // Handle Animations
+            mixer = new THREE.AnimationMixer(model);
+
+            // Look for salute animation
+            const saluteClip = gltf.animations.find(clip =>
+                clip.name.toLowerCase().includes('salute') ||
+                clip.name.toLowerCase().includes('action') ||
+                clip.name.toLowerCase().includes('wave')
+            ) || gltf.animations[0];
+
+            if (saluteClip) {
+                const action = mixer.clipAction(saluteClip);
+                action.setLoop(THREE.LoopOnce);
+                action.clampWhenFinished = true;
+                action.timeScale = 0.5;
+                action.play();
+            }
+        }, undefined, (error) => {
+            console.error('Error loading GLB:', error);
+        });
+
+        function animateModel() {
+            requestAnimationFrame(animateModel);
+            const delta = 0.016; 
+            if (mixer) mixer.update(delta);
+            if (controls) controls.update();
+            renderer.render(scene, camera);
+        }
+        animateModel();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = modelContainer.clientWidth / modelContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(modelContainer.clientWidth, modelContainer.clientHeight);
+        });
+    }
 
 });
 

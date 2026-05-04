@@ -16,6 +16,15 @@
         href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Playfair+Display+SC:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
+        }
+      }
+    </script>
 
 
 </head>
@@ -147,6 +156,7 @@
                         target="_blank" class="custom-btn">View Resume<span></span></a>
                 </div>
             </div>
+            <div id="model-container" class="hero-model-container"></div>
         </div>
         <div class="scroll-indicator">
             <div class="mouse"></div>
@@ -514,7 +524,7 @@
 
     <div id="toast-container" class="toast-container"></div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 
 </body>
 
